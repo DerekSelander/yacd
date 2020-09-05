@@ -67,3 +67,7 @@ fastlane/test_output
 
 iOSInjectionProject/
 /.DS_Store
+/media/.DS_Store
+/PsychicStapler.xcodeproj/xcuserdata/lolgrep.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+/PsychicStapler.xcodeproj/project.xcworkspace/xcuserdata/lolgrep.xcuserdatad/UserInterfaceState.xcuserstate
+.DS_Store

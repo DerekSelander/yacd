@@ -45,6 +45,13 @@
 		3FCA5CF524D762950021FEDB /* ProcessDetailsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3FCA5CF424D762950021FEDB /* ProcessDetailsViewController.mm */; };
 		3FE942D524C7B78E008FCB38 /* TaskHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3FE942D324C7B78E008FCB38 /* TaskHelpers.mm */; };
 		3FE942F724CE771A008FCB38 /* libPsychicStapler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F17A5FA24C3F485000227B5 /* libPsychicStapler.a */; };
+		3FF4B82525011E950047642E /* SVRadialGradientLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FF4B81B25011E950047642E /* SVRadialGradientLayer.m */; };
+		3FF4B82625011E950047642E /* SVProgressAnimatedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FF4B81E25011E950047642E /* SVProgressAnimatedView.m */; };
+		3FF4B82725011E950047642E /* SVProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FF4B82125011E950047642E /* SVProgressHUD.m */; };
+		3FF4B82825011E950047642E /* SVIndefiniteAnimatedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FF4B82225011E950047642E /* SVIndefiniteAnimatedView.m */; };
+		3FF4B82925011E950047642E /* SVProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3FF4B82325011E950047642E /* SVProgressHUD.bundle */; };
+		3FF4B82C25012BFF0047642E /* AirdropOnlyActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FF4B82B25012BFF0047642E /* AirdropOnlyActivity.m */; };
+		3FF4B830250131DD0047642E /* ProcessModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3FF4B82F250131DD0047642E /* ProcessModule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -169,6 +176,20 @@
 		3FE942F424CE7492008FCB38 /* evil_ent.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = evil_ent.xml; sourceTree = "<group>"; };
 		3FE942FA24CE818C008FCB38 /* commons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = commons.h; sourceTree = "<group>"; };
 		3FE942FD24CF7371008FCB38 /* CoreServices.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoreServices.h; sourceTree = "<group>"; };
+		3FF4B81B25011E950047642E /* SVRadialGradientLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVRadialGradientLayer.m; sourceTree = "<group>"; };
+		3FF4B81C25011E950047642E /* SVIndefiniteAnimatedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVIndefiniteAnimatedView.h; sourceTree = "<group>"; };
+		3FF4B81D25011E950047642E /* SVProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressHUD.h; sourceTree = "<group>"; };
+		3FF4B81E25011E950047642E /* SVProgressAnimatedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressAnimatedView.m; sourceTree = "<group>"; };
+		3FF4B81F25011E950047642E /* SVProgressHUD-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SVProgressHUD-Prefix.pch"; sourceTree = "<group>"; };
+		3FF4B82025011E950047642E /* SVRadialGradientLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVRadialGradientLayer.h; sourceTree = "<group>"; };
+		3FF4B82125011E950047642E /* SVProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVProgressHUD.m; sourceTree = "<group>"; };
+		3FF4B82225011E950047642E /* SVIndefiniteAnimatedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SVIndefiniteAnimatedView.m; sourceTree = "<group>"; };
+		3FF4B82325011E950047642E /* SVProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SVProgressHUD.bundle; sourceTree = "<group>"; };
+		3FF4B82425011E950047642E /* SVProgressAnimatedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVProgressAnimatedView.h; sourceTree = "<group>"; };
+		3FF4B82A25012BFF0047642E /* AirdropOnlyActivity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AirdropOnlyActivity.h; sourceTree = "<group>"; };
+		3FF4B82B25012BFF0047642E /* AirdropOnlyActivity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AirdropOnlyActivity.m; sourceTree = "<group>"; };
+		3FF4B82E250131DD0047642E /* ProcessModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProcessModule.h; sourceTree = "<group>"; };
+		3FF4B82F250131DD0047642E /* ProcessModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProcessModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -341,6 +362,8 @@
 		3F7513D824C713A600DC892B /* yacd */ = {
 			isa = PBXGroup;
 			children = (
+				3FF4B82D250131C50047642E /* Models */,
+				3FF4B81A25011E950047642E /* SVProgressHUD */,
 				3F6EA03E24F4005D001AD9C8 /* SSZipArchive */,
 				3F36E35D24E032060002EE58 /* ViewControllers */,
 				3FCD7B3E24E030FE00E7414A /* Helpers */,
@@ -352,6 +375,8 @@
 				3F7513E724C713A700DC892B /* LaunchScreen.storyboard */,
 				3F7513EA24C713A700DC892B /* Info.plist */,
 				3F7513EB24C713A700DC892B /* main.m */,
+				3FF4B82A25012BFF0047642E /* AirdropOnlyActivity.h */,
+				3FF4B82B25012BFF0047642E /* AirdropOnlyActivity.m */,
 			);
 			path = yacd;
 			sourceTree = "<group>";
@@ -365,6 +390,32 @@
 				3F4072FE24FC9CA90016831B /* NSError+ErrorHelper.m */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		3FF4B81A25011E950047642E /* SVProgressHUD */ = {
+			isa = PBXGroup;
+			children = (
+				3FF4B81B25011E950047642E /* SVRadialGradientLayer.m */,
+				3FF4B81C25011E950047642E /* SVIndefiniteAnimatedView.h */,
+				3FF4B81D25011E950047642E /* SVProgressHUD.h */,
+				3FF4B81E25011E950047642E /* SVProgressAnimatedView.m */,
+				3FF4B81F25011E950047642E /* SVProgressHUD-Prefix.pch */,
+				3FF4B82025011E950047642E /* SVRadialGradientLayer.h */,
+				3FF4B82125011E950047642E /* SVProgressHUD.m */,
+				3FF4B82225011E950047642E /* SVIndefiniteAnimatedView.m */,
+				3FF4B82325011E950047642E /* SVProgressHUD.bundle */,
+				3FF4B82425011E950047642E /* SVProgressAnimatedView.h */,
+			);
+			path = SVProgressHUD;
+			sourceTree = SOURCE_ROOT;
+		};
+		3FF4B82D250131C50047642E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3FF4B82E250131DD0047642E /* ProcessModule.h */,
+				3FF4B82F250131DD0047642E /* ProcessModule.m */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -470,6 +521,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FF4B82925011E950047642E /* SVProgressHUD.bundle in Resources */,
 				3F7513E924C713A700DC892B /* LaunchScreen.storyboard in Resources */,
 				3F7513E624C713A700DC892B /* Assets.xcassets in Resources */,
 				3F6EA06724F4005D001AD9C8 /* LICENSE in Resources */,
@@ -526,13 +578,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				3F7513E124C713A700DC892B /* ViewController.mm in Sources */,
+				3FF4B82625011E950047642E /* SVProgressAnimatedView.m in Sources */,
 				3F6EA07324F4005D001AD9C8 /* SSZipArchive.m in Sources */,
 				3FCA5CF524D762950021FEDB /* ProcessDetailsViewController.mm in Sources */,
 				3F6EA06524F4005D001AD9C8 /* mz_strm_zlib.c in Sources */,
 				3F6EA06824F4005D001AD9C8 /* mz_zip_rw.c in Sources */,
 				3F6EA06624F4005D001AD9C8 /* mz_zip.c in Sources */,
 				3F7513DB24C713A700DC892B /* AppDelegate.m in Sources */,
+				3FF4B82C25012BFF0047642E /* AirdropOnlyActivity.m in Sources */,
 				3F6EA06A24F4005D001AD9C8 /* mz_strm_mem.c in Sources */,
+				3FF4B82725011E950047642E /* SVProgressHUD.m in Sources */,
+				3FF4B830250131DD0047642E /* ProcessModule.m in Sources */,
 				3F6EA06F24F4005D001AD9C8 /* mz_os_posix.c in Sources */,
 				3F6EA07124F4005D001AD9C8 /* mz_strm_split.c in Sources */,
 				3F6EA06B24F4005D001AD9C8 /* mz_crypt.c in Sources */,
@@ -543,7 +599,9 @@
 				3F4072FF24FC9CA90016831B /* NSError+ErrorHelper.m in Sources */,
 				3F6EA06424F4005D001AD9C8 /* mz_strm_pkcrypt.c in Sources */,
 				3F4072FB24FB580D0016831B /* ApplicationTableViewCell.m in Sources */,
+				3FF4B82825011E950047642E /* SVIndefiniteAnimatedView.m in Sources */,
 				3F6EA06E24F4005D001AD9C8 /* mz_os.c in Sources */,
+				3FF4B82525011E950047642E /* SVRadialGradientLayer.m in Sources */,
 				3F6EA06924F4005D001AD9C8 /* mz_crypt_apple.c in Sources */,
 				3FBDE5D824DD293900D53CB8 /* UIViewController+DisplayError.m in Sources */,
 				3F6EA07024F4005D001AD9C8 /* mz_strm_buf.c in Sources */,

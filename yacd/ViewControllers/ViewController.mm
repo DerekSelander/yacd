@@ -54,6 +54,7 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
     NSIndexPath* indexPath = [self.tableView indexPathForSelectedRow];
     ProcessDetailsViewController* vc = (ProcessDetailsViewController*)[segue destinationViewController];
     auto application = self.filteredInstalledApplications[indexPath.row];
+    vc.application = application;
     auto pidInfo = self.processDictionary[application.canonicalExecutablePath];
     vc.pidInfo = pidInfo;
 }

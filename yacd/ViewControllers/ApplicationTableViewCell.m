@@ -8,15 +8,14 @@
 
 #import "ApplicationTableViewCell.h"
 
-__attribute__((weak))
-extern CGImageRef LICreateIconFromCachedBitmap(NSData* data);
 
 @implementation ApplicationTableViewCell
 
 - (void)setupCellWithApplicationProxy:(id <LSApplicationProxyProtocol>) applicationProxy pidInfo:(PIDInfo*)pidInfo {
-    NSData *data = [applicationProxy primaryIconDataForVariant:0x22];
+    NSData *data = [applicationProxy primaryIconDataForVariant:0x20];
     CGImageRef imageRef = LICreateIconFromCachedBitmap(data);
-    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:2.0 orientation:UIImageOrientationUp];
+    CGFloat scale = [UIScreen mainScreen].scale;
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
 
     self.appIconImageView.image = image;
     self.bundleIdentifierLabel.text = [applicationProxy bundleIdentifier];

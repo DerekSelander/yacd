@@ -14,6 +14,8 @@
 
 NSString *const SSZipArchiveErrorDomain = @"SSZipArchiveErrorDomain";
 
+extern void SSZipArchiveProgressCallback(float progress);
+extern void SSZipArchiveCompletionCallback(BOOL success);
 #define CHUNK 16384
 
 int _zipOpenEntry(zipFile entry, NSString *name, const zip_fileinfo *zipfi, int level, NSString *password, BOOL aes);
@@ -815,7 +817,18 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
             allObjects = @[@""];
             total = 1;
         }
-        for (__strong NSString *fileName in allObjects) {
+        float mostRecentProgressUpdate = 0.0;
+        for (int i = 0; i < total; i++) {
+            
+            float prog = (float)i/(float)total;
+            if (prog - mostRecentProgressUpdate > 0.15) {
+                mostRecentProgressUpdate = prog;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    SSZipArchiveProgressCallback(prog);
+                });
+            }
+            
+            NSString *fileName = allObjects[i];
             NSString *fullFilePath = [directoryPath stringByAppendingPathComponent:fileName];
             if ([fullFilePath isEqualToString:path]) {
                 NSLog(@"[SSZipArchive] the archive path and the file path: %@ are the same, which is forbidden.", fullFilePath);
@@ -845,6 +858,9 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
         }
         success &= [zipArchive close];
     }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        SSZipArchiveCompletionCallback(success);
+    });
     return success;
 }
 

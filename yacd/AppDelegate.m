@@ -7,13 +7,24 @@
 //
 
 #import "AppDelegate.h"
+#import "SVProgressHUD.h"
 @interface AppDelegate ()
 @end
+
+void SSZipArchiveProgressCallback(float progress) {
+    [SVProgressHUD showProgress:progress status:@"Zipping Contents"];
+}
+
+void SSZipArchiveCompletionCallback(BOOL success) {
+    [SVProgressHUD dismiss];
+}
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeGradient];
+    [SVProgressHUD setMaximumDismissTimeInterval:1.5];
     return YES;
 }
 

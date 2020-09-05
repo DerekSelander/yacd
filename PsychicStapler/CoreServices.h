@@ -26,7 +26,14 @@
 -(NSArray <id<LSApplicationProxyProtocol>>*)allApplications;
 @end
 
-//__attribute__((weak))
-//CGImageRef LICreateIconFromCachedBitmap(NSData* data);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+__attribute__((weak))
+ CGImageRef LICreateIconFromCachedBitmap(NSData* data);
+
+#ifdef __cplusplus
+}
+#endif
 

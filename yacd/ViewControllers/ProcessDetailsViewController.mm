@@ -7,19 +7,20 @@
 //
 
 #import "ProcessDetailsViewController.h"
-#import <PsychicStapler/PsychicStapler.h>
-#import "UIViewController+DisplayError.h"
-#import "SSZipArchive.h"
-#import "NSError+ErrorHelper.h"
+#import "ProcessModule.h"
 
 #define YACD_DIR @"yacd"
 #define ZIP_PAYLOAD @"payload.zip"
 
+__attribute__((weak))
+extern CGImageRef LICreateIconFromCachedBitmap(NSData* data);
+
 @interface ProcessDetailsViewController () <UITableViewDataSource>
 @property (nonatomic, weak) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) NSString *appPath;
-@property (nonatomic, strong) NSArray<NSDictionary*> * dataSource;
-@property (nonatomic, assign) mach_port_name_t externalPort;
+@property (nonatomic, strong) NSArray<ProcessModule *> * dataSource;
+@property (nonatomic, strong) NSArray<ProcessModule *> * sharedDataSource;
+@property (nonatomic, assign) mach_port_t externalPort;
 @end
 
 extern "C" {
@@ -33,127 +34,163 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSError *err = nil;
-//    mach_port_name_t externalPort = MACH_PORT_NULL;
     self.appPath = [self.pidInfo.path
                     stringByDeletingLastPathComponent];
 
     if (!self.appPath) {
-        err = [NSError errorWithDescription:@"Malformed process"];
-        [self displayModalErrorWithMessage:@"Error" andError:err];
+        [SVProgressHUD showErrorWithStatus:@"Application must be launched first"];
         return;
     }
 
     if (task_for_pid(mach_task_self(), self.pidInfo.pid.intValue, &_externalPort)) {
-        err = [NSError errorWithDescription:@"Unable to get task_for_pid"];
-        [self displayModalErrorWithMessage:@"Error" andError:err];
+        [SVProgressHUD showErrorWithStatus:@"Unable to get task for PID"];
         return;
     }
 
 
     NSMutableArray *data = [NSMutableArray new];
-    ::enumerate_encrypted_modules(_externalPort, ^(char *path,  mach_vm_address_t module_start, uint32_t cryptoff, uint32_t cryptsize) {
- 
-        [data addObject:@{ @"module" : [NSString stringWithUTF8String:path], @"addr" : @(module_start)}];
+    NSMutableArray *sharedData = [NSMutableArray new];
+    BOOL success = enumerate_loaded_modules(_externalPort, ^(char *path, mach_vm_address_t module_start) {
+        ProcessModule *processModule = [[ProcessModule alloc] initWithPath:path startAddress:module_start task:self.externalPort];
+        
+        
+        if (processModule.isSharedCache) {
+            [sharedData addObject:processModule];
+        } else {
+            [data addObject:processModule];
+        }
     });
+    
+    if (!success) {
+        [SVProgressHUD showErrorWithStatus:@"task_info error (System App)?"];
+    }
 
     self.dataSource = [data copy];
+    self.sharedDataSource = [sharedData copy];
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return section == 0 ? @"NON-Shared DYLD" : @"Shared DYLD";
+}
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.dataSource.count;
+    return  section == 0 ? self.dataSource.count : self.sharedDataSource.count;
 }
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
 
 - (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
-    NSDictionary *dict = self.dataSource[indexPath.row];
+    
+    ProcessModule *pm = indexPath.section == 0 ? self.dataSource[indexPath.row] :  self.sharedDataSource[indexPath.row];
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     cell.textLabel.minimumScaleFactor = 0.5;
-    cell.textLabel.text = [dict[@"module"] lastPathComponent];
-    NSNumber *addr = dict[@"addr"];
+    
+    cell.textLabel.text = [pm.path lastPathComponent];
+    NSNumber *addr = pm.address;
     cell.detailTextLabel.text = [NSString stringWithFormat:@"0x%012lx", [addr unsignedLongValue]];
     return cell;
 }
 
 - (IBAction)decryptApplicationTapped:(id)sender {
-    NSError *err = nil;
     mach_port_name_t externalPort = MACH_PORT_NULL;
+    ((UIButton*)sender).enabled = NO;
     
     if (task_for_pid(mach_task_self(), self.pidInfo.pid.intValue, &externalPort)) {
-        err = [NSError errorWithDescription:@"Unable to get task_for_pid"];
-        [self displayModalErrorWithMessage:@"Error" andError:err];
+        [SVProgressHUD showErrorWithStatus:@"Unable to get task for PID"];
         return;
     }
     
     // Create the path to/from
-    NSFileManager *manager = [NSFileManager defaultManager];
-    NSString* tmpDir = NSTemporaryDirectory();
-    NSString *appName = [self.appPath lastPathComponent];
-    NSString *copyToDir = [tmpDir stringByAppendingPathComponent:YACD_DIR];
-    NSString *fullPathToDir = [copyToDir stringByAppendingPathComponent:appName];
-    NSString *zippedPath = [tmpDir stringByAppendingPathComponent:ZIP_PAYLOAD];
+    [SVProgressHUD showInfoWithStatus:@"Copying .app contents"];
     
-    [manager removeItemAtPath:fullPathToDir error:&err];
-    if (err) {
-        NSLog(@"%@", err);
-        err = nil;
-    }
-    
-    [manager createDirectoryAtPath:copyToDir withIntermediateDirectories:YES attributes:nil error:&err];
-    if (err) {
-        NSLog(@"%@", err);
-        err = nil;
-    }
-    
-    if (![manager  copyItemAtPath:self.appPath toPath:fullPathToDir error:&err]) {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        
+        NSError *err = nil;
+        NSFileManager *manager = [NSFileManager defaultManager];
+        NSString* tmpDir = NSTemporaryDirectory();
+        NSString *appName = [self.appPath lastPathComponent];
+        NSString *copyToDir = [tmpDir stringByAppendingPathComponent:YACD_DIR];
+        NSString *fullPathToDir = [copyToDir stringByAppendingPathComponent:appName];
+        NSString *zippedPath = [tmpDir stringByAppendingPathComponent:ZIP_PAYLOAD];
+        
+        [manager removeItemAtPath:fullPathToDir error:&err];
         if (err) {
             NSLog(@"%@", err);
+            err = nil;
         }
-    }
-
-    // Replica at fullPathToDir, cross reference memory in process and grab decrypted parts
-    
-    ::enumerate_encrypted_modules(externalPort, ^(char *path,  mach_vm_address_t module_start, uint32_t cryptoff, uint32_t cryptsize) {
         
+        [manager createDirectoryAtPath:copyToDir withIntermediateDirectories:YES attributes:nil error:&err];
+        if (err) {
+            NSLog(@"%@", err);
+            err = nil;
+        }
         
-        NSString *fullPath = [NSString stringWithUTF8String:path];
-        NSRange range = [fullPath rangeOfString:self.appPath];
-        NSString *relativePath = [fullPath substringFromIndex:range.length];
-        NSString *realizedPath = [fullPathToDir stringByAppendingPathComponent:relativePath];
+        if (![manager  copyItemAtPath:self.appPath toPath:fullPathToDir error:&err]) {
+            if (err) {
+                NSLog(@"%@", err);
+            }
+        }
         
-        // Grab the decrypted payload
-        void* payload = calloc(cryptsize, sizeof(char));
-        mach_vm_size_t outsize = cryptsize;
-        kern_return_t kr = mach_vm_read_overwrite(self->_externalPort, module_start + cryptoff  + sizeof(struct mach_header_64), cryptsize, (mach_vm_address_t)payload, &outsize);
-        
-        if (kr != KERN_SUCCESS || outsize != cryptsize) {
-            NSError *err = [NSError errorWithDescription:@"Error Patching"];
-            [self displayModalErrorWithMessage:@"Error" andError:err];
+        // Replica at fullPathToDir, cross reference memory in process and grab decrypted parts
+        [SVProgressHUD showInfoWithStatus:@"Patching encrypted modules"];
+        ::enumerate_encrypted_modules(externalPort, ^(char *path,  mach_vm_address_t module_start, uint32_t cryptoff, uint32_t cryptsize) {
+            
+            
+            NSString *fullPath = [NSString stringWithUTF8String:path];
+            NSRange range = [fullPath rangeOfString:self.appPath];
+            NSString *relativePath = [fullPath substringFromIndex:range.length];
+            NSString *realizedPath = [fullPathToDir stringByAppendingPathComponent:relativePath];
+            
+            // Grab the decrypted payload
+            void* payload = calloc(cryptsize, sizeof(char));
+            mach_vm_size_t outsize = cryptsize;
+            kern_return_t kr = mach_vm_read_overwrite(self->_externalPort, module_start + cryptoff  + sizeof(struct mach_header_64), cryptsize, (mach_vm_address_t)payload, &outsize);
+            
+            if (kr != KERN_SUCCESS || outsize != cryptsize) {
+                [SVProgressHUD showErrorWithStatus:@"Error reading encrypted module"];
+                free(payload);
+                return;
+            }
+            
+            // Patch file from decrypted mem
+            if (!patch_encrypted_module_with_decrypted_memory((mach_vm_address_t)payload, cryptsize, cryptoff, realizedPath.UTF8String)) {
+                [SVProgressHUD showErrorWithStatus:@"Error replacing memory"];
+            }
             free(payload);
-            return;
-        }
+        });
         
-        // Patch file from decrypted mem
-        if (!patch_encrypted_module_with_decrypted_memory((mach_vm_address_t)payload, cryptsize, cryptoff, realizedPath.UTF8String)) {
-            NSError *err = [NSError errorWithDescription:@"Error Replacing Decrypted Memory"];
-            [self displayModalErrorWithMessage:@"Error" andError:err];
-        }
-        free(payload);
+        [self zipAndShare:zippedPath withContents:fullPathToDir];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            ((UIButton*)sender).enabled = YES;
+        });
     });
-    
-    [self zipAndShare:zippedPath withContents:fullPathToDir];
 }
 
-- (void)zipAndShare:(NSString *)zippedPath withContents:(NSString *)contents {
-    if ([SSZipArchive createZipFileAtPath:zippedPath withContentsOfDirectory:contents keepParentDirectory:YES]) {
-        NSURL *url = [NSURL fileURLWithPath:zippedPath];
-        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[url] applicationActivities:nil];
-        [self presentViewController:activityViewController animated:YES completion:nil];
-    } else {
-        NSError *err = [NSError errorWithDescription:@"Zipping problem"];
-        [self displayModalErrorWithMessage:@"Error" andError:err];
-    }
+- (void)zipAndShare:(NSString *)zippedPath withContents:(NSString *)contents  {
+    [SVProgressHUD showInfoWithStatus:@"Zipping contents"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        BOOL success = [SSZipArchive createZipFileAtPath:zippedPath withContentsOfDirectory:contents keepParentDirectory:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (success) {
+                NSURL *url = [NSURL fileURLWithPath:zippedPath];
+                
+                NSData *data = [self.application primaryIconDataForVariant:0x20];
+                CGImageRef imageRef = LICreateIconFromCachedBitmap(data);
+                CGFloat scale = [UIScreen mainScreen].scale;
+                UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
+                
+                UIActivity *airdropActivity = [[AirdropOnlyActivity alloc] initWithImage:image appName:self.application.bundleIdentifier];
+                UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[url] applicationActivities:@[airdropActivity]];
+                
+                [self presentViewController:activityViewController animated:YES completion:nil];
+            } else {
+                [SVProgressHUD showErrorWithStatus:@"Zipping problem"];
+            }
+            
+        });
+    });
 }
 
 @end
