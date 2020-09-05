@@ -16,3 +16,8 @@ Change around the Singing identity and build for an iOS 13.4.1 or lower device. 
 
 ## Usage
 First, launch a 3rd party application, then decrypt it from the yacd app. Have a receiving computer with Airdrop available nearby.
+
+## Credits 
+
+[@s1guza](https://twitter.com/s1guza)'s already mentioned [Psychich Paper](https://siguza.github.io/psychicpaper/)  
+[@@rodionovme](https://twitter.com/rodionovme)'s [liblorgnette](https://github.com/rodionovd/liblorgnette) as a starting point
