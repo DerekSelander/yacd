@@ -12,7 +12,7 @@
 @implementation ApplicationTableViewCell
 
 - (void)setupCellWithApplicationProxy:(id <LSApplicationProxyProtocol>) applicationProxy pidInfo:(PIDInfo*)pidInfo {
-    NSData *data = [applicationProxy primaryIconDataForVariant:0x20];
+    NSData *data = [applicationProxy primaryIconDataForVariant:0x11];
     CGImageRef imageRef = LICreateIconFromCachedBitmap(data);
     CGFloat scale = [UIScreen mainScreen].scale;
     UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
