@@ -10,6 +10,8 @@ Many alternatives already exist ([original?](https://github.com/stefanesser/dump
 
 
 ## Compile 
+You'll need Xcode 12 for the xcproject
+
 Change around the Singing identity and build for an iOS 13.4.1 or lower device. If successful, you'll see the list of GUI applications on your iOS device.
 
 ## Usage
