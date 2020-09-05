@@ -174,7 +174,7 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
             if (success) {
                 NSURL *url = [NSURL fileURLWithPath:zippedPath];
                 
-                NSData *data = [self.application primaryIconDataForVariant:0x11];
+                NSData *data = [self.application primaryIconDataForVariant:0x20];
                 CGImageRef imageRef = LICreateIconFromCachedBitmap(data);
                 CGFloat scale = [UIScreen mainScreen].scale;
                 UIImage *image = [[UIImage alloc] initWithCGImage:imageRef scale:scale orientation:UIImageOrientationUp];
