@@ -34,8 +34,8 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.appPath = [self.pidInfo.path
-                    stringByDeletingLastPathComponent];
+    NSRange appRange = [self.pidInfo.path rangeOfString:@".app/"];
+    self.appPath = [self.pidInfo.path substringToIndex:appRange.location + appRange.length];
 
     if (!self.appPath) {
         [SVProgressHUD showErrorWithStatus:@"Application must be launched first"];
@@ -113,9 +113,8 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
         NSString *appName = [self.appPath lastPathComponent];
         NSString *copyToDir = [tmpDir stringByAppendingPathComponent:YACD_DIR];
         NSString *fullPathToDir = [copyToDir stringByAppendingPathComponent:appName];
-        NSString *zippedPath = [tmpDir stringByAppendingPathComponent:ZIP_PAYLOAD];
-        
-        [manager removeItemAtPath:fullPathToDir error:&err];
+        NSString *zippedPath = [tmpDir stringByAppendingPathComponent:[NSString stringWithFormat:@"Payload_%@.zip", self.application.bundleIdentifier]];
+        [manager removeItemAtPath:copyToDir error:&err];
         if (err) {
             NSLog(@"%@", err);
             err = nil;
@@ -132,7 +131,6 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
                 NSLog(@"%@", err);
             }
         }
-        
         // Replica at fullPathToDir, cross reference memory in process and grab decrypted parts
         [SVProgressHUD showInfoWithStatus:@"Patching encrypted modules"];
         ::enumerate_encrypted_modules(externalPort, ^(char *path,  mach_vm_address_t module_start, uint32_t cryptoff, uint32_t cryptsize) {
@@ -191,6 +189,28 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
             
         });
     });
+}
+
+- (NSString *)resolvePathToZippedPath:(NSString*)fullPath {
+    NSRange range = [fullPath rangeOfString:self.appPath];
+    NSString *relativePath = [fullPath substringFromIndex:range.length];
+    NSString *realizedPath = [self.pathToDir stringByAppendingPathComponent:relativePath];
+    return realizedPath;
+}
+
+- (NSString*)pathToDir {
+    static NSString *_pathToDir = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+    NSString* tmpDir = NSTemporaryDirectory();
+    NSString *appName = [self.appPath lastPathComponent];
+    NSString *copyToDir = [tmpDir stringByAppendingPathComponent:YACD_DIR];
+    NSString *fullPathToDir = [copyToDir stringByAppendingPathComponent:appName];
+        _pathToDir = fullPathToDir;
+    });
+    
+    return _pathToDir;
 }
 
 @end
