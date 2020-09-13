@@ -21,7 +21,28 @@
     self.bundleIdentifierLabel.text = [applicationProxy bundleIdentifier];
     self.displayNameLabel.text = [applicationProxy localizedName];
     BOOL isApple = [[applicationProxy bundleIdentifier] containsString:@".apple"];
-    self.contentView.backgroundColor = isApple ? [UIColor colorWithWhite:0.92 alpha:1.0] : [UIColor whiteColor];
+    BOOL isDarkMode = FALSE;
+    if (@available(iOS 12.0, *)) {
+            switch (UIScreen.mainScreen.traitCollection.userInterfaceStyle) {
+                case UIUserInterfaceStyleDark:
+                    // put your dark mode code here
+                    isDarkMode = TRUE;
+                    break;
+                case UIUserInterfaceStyleLight:
+                case UIUserInterfaceStyleUnspecified:
+                    break;
+                default:
+                    break;
+            }
+    }
+    
+    if (isDarkMode)
+    {
+        self.contentView.backgroundColor = [UIColor darkGrayColor];
+        self.contentView.backgroundColor = isApple ? [UIColor darkGrayColor]:[UIColor grayColor];
+    }else{
+        self.contentView.backgroundColor = isApple ? [UIColor colorWithWhite:0.92 alpha:1.0] : [UIColor whiteColor];
+    }
     self.isActiveProcessView.hidden = pidInfo == nil ? YES : NO;
 }
 

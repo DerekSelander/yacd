@@ -807,9 +807,11 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
     
     SSZipArchive *zipArchive = [[SSZipArchive alloc] initWithPath:path];
     BOOL success = [zipArchive open];
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSString *zipPath = nil;
+    NSString *fileName = nil;
     if (success) {
         // use a local fileManager (queue/thread compatibility)
-        NSFileManager *fileManager = [[NSFileManager alloc] init];
         NSDirectoryEnumerator *dirEnumerator = [fileManager enumeratorAtPath:directoryPath];
         NSArray<NSString *> *allObjects = dirEnumerator.allObjects;
         NSUInteger total = allObjects.count, complete = 0;
@@ -828,7 +830,7 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
                 });
             }
             
-            NSString *fileName = allObjects[i];
+            fileName = allObjects[i];
             NSString *fullFilePath = [directoryPath stringByAppendingPathComponent:fileName];
             if ([fullFilePath isEqualToString:path]) {
                 NSLog(@"[SSZipArchive] the archive path and the file path: %@ are the same, which is forbidden.", fullFilePath);
@@ -856,11 +858,15 @@ BOOL _fileIsSymbolicLink(const unz_file_info *fileInfo);
                 progressHandler(complete, total);
             }
         }
+        
+        zipPath = [NSString stringWithFormat:@"%@", zipArchive->_path];
+        fileName = [[zipPath lastPathComponent] stringByDeletingPathExtension];
         success &= [zipArchive close];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         SSZipArchiveCompletionCallback(success);
     });
+    [fileManager copyItemAtPath:zipPath toPath:[NSString stringWithFormat:@"/var/mobile/Media/general_storage/%@.ipa", fileName] error:nil];
     return success;
 }
 
