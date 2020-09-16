@@ -354,7 +354,9 @@ int _image_headers_from_dyld_info64(task_t target,
 			 * so we can't read the image name directly. */
             if (closure) {
                 char *image_name = _copyin_string(target, array[i].imageFilePath);
-                closure(image_name, array[i].imageLoadAddress);
+                if (image_name != NULL) {
+                    closure(image_name, array[i].imageLoadAddress);
+                }
             } else if (!should_find_particular_image || i == 0) {
                 headers[i] = (mach_vm_address_t)array[i].imageLoadAddress;
             } else {
@@ -564,6 +566,9 @@ static char *_copyin_string(task_t task, mach_vm_address_t pointer)
 	mach_vm_size_t sample_size = sizeof(buf);
 	err = mach_vm_read_overwrite(task, pointer, sample_size,
 								 (mach_vm_address_t)&buf, &sample_size);
+    if (err != KERN_SUCCESS) {
+        return NULL;
+    }
 	assert(err == KERN_SUCCESS);
 	buf[kRemoteStringBufferSize-1] = '\0';
 
