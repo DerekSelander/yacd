@@ -97,7 +97,7 @@ extern int mremap_encrypted(caddr_t addr, size_t len,
         NSLog(@"%@", err);
     }
 
-    id<LSApplicationWorkspaceProtocol> LSApplicationWorkspace = NSClassFromString(@"LSApplicationWorkspace");
+    id<LSApplicationWorkspaceProtocol> LSApplicationWorkspace = (id<LSApplicationWorkspaceProtocol>)NSClassFromString(@"LSApplicationWorkspace");
     self.installedApplications  = [[LSApplicationWorkspace defaultWorkspace] allApplications];
     self.filteredInstalledApplications = self.installedApplications;
     [self.tableView reloadData];
